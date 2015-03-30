@@ -4,9 +4,10 @@
   "description": "Convert an the MovingAI map format to a JSON data structure.",
   "author": "Davide Aversa <thek3nger@gmail.com>",
   "main": "lib/movingai2json.js",
+  "repository": "https://github.com/THeK3nger/movingai2json",
   "scripts": {
-    "test": "grunt test",
-    "start": "node lib/movingai2json.js",
+    "test": "gulp test",
+    "start": "node dist/movingai2json.js",
     "coverage": "istanbul cover .\\node_modules\\mocha\\bin\\_mocha -- -R spec"
   },
   "keywords": [

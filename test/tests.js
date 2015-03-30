@@ -1,6 +1,6 @@
 var fs = require('fs');
 var assert = require("assert");
-var movingai2json = require("../lib/movingai2json.js");
+var movingai2json = require("../dist/movingai2json.js");
 
 describe('Parsing', function(){
     describe('#parseMapString()', function(){

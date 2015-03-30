@@ -7,6 +7,7 @@
   "repository": "https://github.com/THeK3nger/movingai2json",
   "scripts": {
     "test": "gulp test",
+    "build": "gulp build",
     "start": "node dist/movingai2json.js",
     "coverage": "istanbul cover .\\node_modules\\mocha\\bin\\_mocha -- -R spec"
   },

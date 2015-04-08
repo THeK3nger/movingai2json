@@ -24,4 +24,26 @@ describe('Parsing', function(){
             assert.equal(20, parsedMap.height);
         });
     });
+
+    describe('#parseMapFile()', function() {
+       before(function(done) {
+           movingai2json.parseMapFile('./test/keydoor.map', function() {
+               done();
+           });
+       });
+
+        it('load output JSON and check if width is 20', function() {
+            fs.readFile('./test/keydoor.map.json', function(err, data) {
+                var parsedJSON = JSON.parse(data.toString());
+                assert.equal(20, parsedJSON.width);
+            });
+        });
+
+        it('load output JSON and check if height is 20', function() {
+            fs.readFile('./test/keydoor.map.json', function(err, data) {
+                var parsedJSON = JSON.parse(data.toString());
+                assert.equal(20, parsedJSON.height);
+            });
+        });
+    });
 });

@@ -29,5 +29,6 @@ node_modules
 
 # Build Results
 dist
+test/keydoor.map.json
 
 

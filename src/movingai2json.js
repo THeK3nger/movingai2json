@@ -46,6 +46,32 @@ function parseMapString (map_string) {
     return json_map;
 }
 
+/******************************************************************************
+ * FILE OPERATIONS
+ *
+ */
 
+var fs = require('fs');
+
+/**
+ * Get a .map file and produce a file .map.json with the JSON representation of
+ * the map.
+ * @param filePath The input file path.
+ */
+function parseMapFile(filePath, onComplete) {
+    fs.readFile( filePath, (err, data) => {
+        if (err) {
+            throw err;
+        }
+        const outJSON = parseMapString(data.toString());
+        fs.writeFile(filePath + ".json", JSON.stringify(outJSON), (err) => {
+            if (err) {
+                return console.log(err);
+            }
+            onComplete();
+        });
+    });
+}
 
 exports.parseMapString = parseMapString;
+exports.parseMapFile = parseMapFile;

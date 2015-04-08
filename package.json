@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "description": "Convert an the MovingAI map format to a JSON data structure.",
   "author": "Davide Aversa <thek3nger@gmail.com>",
-  "main": "lib/movingai2json.js",
-  "repository": "https://github.com/THeK3nger/movingai2json",
+  "main": "src/movingai2json.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/THeK3nger/movingai2json"
+  },
   "scripts": {
     "test": "gulp test",
     "build": "gulp build",
@@ -24,9 +27,7 @@
     "gulp-concat": "^2.5.2",
     "gulp-jshint": "^1.9.4",
     "gulp-mocha": "^2.0.1",
-    "gulp-rename": "^1.2.0",
     "gulp-sourcemaps": "^1.5.1",
-    "gulp-uglify": "^1.1.0",
     "mocha": "^2.2.1"
   },
   "preferGlobal": false,

@@ -11,7 +11,6 @@ if (!String.prototype.startsWith) {
     });
 }
 
-
 function parseMapString (map_string) {
     var parseCommand = (command_string) => {
         var splitted = command_string.split(" ");
@@ -46,5 +45,7 @@ function parseMapString (map_string) {
     }
     return json_map;
 }
+
+
 
 exports.parseMapString = parseMapString;

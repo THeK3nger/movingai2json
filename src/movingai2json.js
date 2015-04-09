@@ -52,13 +52,15 @@ function parseMapString (map_string) {
  */
 
 var fs = require('fs');
+var async = require('async');
 
 /**
  * Get a .map file and produce a file .map.json with the JSON representation of
  * the map.
  * @param filePath The input file path.
+ * @param onComplete Callback executed when the output file is written.
  */
-function parseMapFile(filePath, onComplete) {
+function parseMapFile(filePath, onComplete = () => {}) {
     fs.readFile( filePath, (err, data) => {
         if (err) {
             throw err;
@@ -73,5 +75,35 @@ function parseMapFile(filePath, onComplete) {
     });
 }
 
+function parseAllInFolder(folder, onComplete = () => {}) {
+    fs.readdir(folder, (err, files) =>  {
+        files = files.filter( (file) => file.substr(-4) === ".map");
+        console.log(`${files.length} files found!`);
+        async.each(files, (file, callback) => parseMapFile(file, callback), (err) => {
+            if (err) {
+                throw err;
+            }
+            console.log("Completed!");
+            onComplete();
+        });
+    });
+}
+
 exports.parseMapString = parseMapString;
 exports.parseMapFile = parseMapFile;
+
+/******************************************************************************
+ * COMMAND LINE INTERFACE
+ *
+ */
+let myArgs = process.argv.slice(2);
+
+if (myArgs.length < 1) {
+    console.log("Usage Here"); // TODO: Write CLI usage here!
+} else {
+    if (myArgs[0] === "batch") {
+        console.log("Run batch conversion"); // TODO: Run the batch process.
+        parseAllInFolder(process.cwd());
+    }
+}
+

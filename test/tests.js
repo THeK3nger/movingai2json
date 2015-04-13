@@ -63,4 +63,28 @@ describe('Parsing', function(){
             });
         });
     });
+
+    describe('#parseScenString()', function() {
+        var parsedScene;
+
+        before(function(done) {
+            fs.readFile('./test/arena.map.scen', function(err, data) {
+                if (err) {
+                    throw err;
+                }
+                parsedScene = movingai2json.parseScenString(data.toString());
+                done();
+            });
+        });
+
+        it('random access in the parsed JSON', function() {
+            // All the scenes belong to the same map.
+            for (var i=0;i<parsedScene.length;i++) {
+                assert.equal('maps/dao/arena.map',parsedScene[i].map,"Assertion Error on item " + i + ". Is " + parsedScene[i].map);
+            }
+            assert.equal(parsedScene[5].startX,'1');
+        });
+    });
+
+
 });

@@ -46,6 +46,32 @@ function parseMapString (map_string) {
     return json_map;
 }
 
+function parseScenString(scenString) {
+    let scenarios = scenString.split("\n").slice(1); // Split and remove the header.
+
+    let parseScenario = (scenarioString) => {
+        const parsed = scenarioString.split('\t');
+        return {
+            bucket: parsed[0],
+            map: parsed[1],
+            mapWidth: parsed[2],
+            mapHeight: parsed[3],
+            startX: parsed[4],
+            startY: parsed[5],
+            goalX: parsed[6],
+            goalY: parsed[7],
+            optimalLength: parsed[8]
+        };
+    };
+
+    var scensJSON = [];
+    for (let i=0; i<scenarios.length; i++) {
+        if (scenarios[i].length < 5) { continue; }// Skip empty lines.
+        scensJSON.push(parseScenario(scenarios[i]));
+    }
+    return scensJSON;
+}
+
 /******************************************************************************
  * FILE OPERATIONS
  *
@@ -91,6 +117,7 @@ function parseAllInFolder(folder, onComplete = () => {}) {
 }
 
 exports.parseMapString = parseMapString;
+exports.parseScenString = parseScenString;
 exports.parseMapFile = parseMapFile;
 exports.parseAllInFolder = parseAllInFolder;
 

@@ -9,7 +9,19 @@ computing tiles traversability and movement cost between adjacents tiles.
 
 ## Usage
 
+### Library Usage
+
 The library is composed by the main function `parseMapString(string)`. This function takes as argument the string representing the map in the MovingAI format. This string can be obtained by file or by any other input, it does not matter.
+
+### CLI Usage
+
+The program can be run in the command line in order to automaitcally convert all files in the specified folder.
+
+    node movingai2json batch <folder_path>
+
+This is useful to automatically convert a full benchmark database.
+
+### Output
 
 The output is a JSON data structure in this format:
 
@@ -25,9 +37,9 @@ The output is a JSON data structure in this format:
 
 There is some additional features that can be implemented
 
- * Parser for the .scen files.
- * Utility functions to handle standard common operation on the map (distances, cost, traversability and so on).
- * CLI to batch several .map file into .json files.
+ - [ ] Parser for the .scen files.
+ - [ ] Utility functions to handle standard common operation on the map (distances, cost, traversability and so on).
+ - [x] CLI to batch several .map file into .json files.
 
 ## License
 

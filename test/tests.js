@@ -46,4 +46,21 @@ describe('Parsing', function(){
             });
         });
     });
+
+    describe('#parseAllInFolder()', function() {
+        before(function(done) {
+           movingai2json.parseAllInFolder('./test', function() { done(); });
+        });
+
+        it('check if all the files are generated', function() {
+            var keydorParsed = false;
+            fs.readdir('./test', function(err, files) {
+                files = files.filter( function(file) {
+                    if (file === "keydoor.map.json") {
+                        keydorParsed = true;
+                    }
+                });
+            });
+        });
+    });
 });

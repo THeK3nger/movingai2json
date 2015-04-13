@@ -76,10 +76,11 @@ function parseMapFile(filePath, onComplete = () => {}) {
 }
 
 function parseAllInFolder(folder, onComplete = () => {}) {
+    // TODO: Suppress the STDOUT output on request.
     fs.readdir(folder, (err, files) =>  {
         files = files.filter( (file) => file.substr(-4) === ".map");
         console.log(`${files.length} files found!`);
-        async.each(files, (file, callback) => parseMapFile(file, callback), (err) => {
+        async.each(files, (file, callback) => parseMapFile(folder + "/" + file, callback), (err) => {
             if (err) {
                 throw err;
             }
@@ -91,19 +92,28 @@ function parseAllInFolder(folder, onComplete = () => {}) {
 
 exports.parseMapString = parseMapString;
 exports.parseMapFile = parseMapFile;
+exports.parseAllInFolder = parseAllInFolder;
 
 /******************************************************************************
  * COMMAND LINE INTERFACE
  *
  */
-let myArgs = process.argv.slice(2);
 
-if (myArgs.length < 1) {
-    console.log("Usage Here"); // TODO: Write CLI usage here!
-} else {
-    if (myArgs[0] === "batch") {
-        console.log("Run batch conversion"); // TODO: Run the batch process.
-        parseAllInFolder(process.cwd());
+function printUsage(programName) {
+    console.log("Usage:");
+    console.log(`${programName} batch [folder] -- Convert all the .map file in the folder path.` );
+}
+
+if (module.parent === undefined) {
+    let myArgs = process.argv.slice(2);
+
+    if (myArgs.length < 2) {
+        printUsage(process.argv[0] + " " + process.argv[1]);
+    } else {
+        if (myArgs[0] === "batch") {
+            console.log("Run batch conversion");
+            parseAllInFolder(myArgs[1]);
+        }
     }
 }
 

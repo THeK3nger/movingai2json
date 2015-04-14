@@ -11,7 +11,13 @@ if (!String.prototype.startsWith) {
     });
 }
 
+/**
+ * Parse a string representing a map in the MovingAI format.
+ * @param map_string The input string.
+ * @returns {{}} The JSON object representation of the map.
+ */
 function parseMapString (map_string) {
+    // Parse a single command in the map header.
     var parseCommand = (command_string) => {
         var splitted = command_string.split(" ");
         return Object.freeze({name: splitted[0], value: splitted[1]});
@@ -46,6 +52,11 @@ function parseMapString (map_string) {
     return json_map;
 }
 
+/**
+ * Parse a string representing scenario benchmark in the MovingAI format.
+ * @param scenString The input string.
+ * @returns {Array} The JSON representation of the input string scenario.
+ */
 function parseScenString(scenString) {
     let scenarios = scenString.split("\n").slice(1); // Split and remove the header.
 
@@ -101,6 +112,11 @@ function parseMapFile(filePath, onComplete = () => {}) {
     });
 }
 
+/**
+ * Parse all the files in the given folder.
+ * @param folder The input folder path.
+ * @param onComplete A callback executed when all the files are processed.
+ */
 function parseAllInFolder(folder, onComplete = () => {}) {
     // TODO: Suppress the STDOUT output on request.
     fs.readdir(folder, (err, files) =>  {

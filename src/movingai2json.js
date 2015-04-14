@@ -140,16 +140,14 @@ function parseAllInFolder(folder, onComplete = () => {}) {
             parseScenFile(file, callback);
         }
     };
-
-    // TODO: Suppress the STDOUT output on request.
+    
     fs.readdir(folder, (err, files) =>  {
         files = files.filter( (file) => file.substr(-4) === ".map" || file.substr(-5) === ".scen");
-        console.log(`${files.length} files found!`);
+        // console.log(`${files.length} files found!`);
         async.each(files, (file, callback) => parseFile(folder + "/" + file, callback), (err) => {
             if (err) {
                 throw err;
             }
-            console.log("Completed!");
             onComplete();
         });
     });
@@ -178,7 +176,7 @@ if (module.parent === undefined) {
     } else {
         if (myArgs[0] === "batch") {
             console.log("Run batch conversion");
-            parseAllInFolder(myArgs[1]);
+            parseAllInFolder(myArgs[1], () => console.log("Completed!"));
         }
     }
 }

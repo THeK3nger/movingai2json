@@ -54,12 +54,17 @@ describe('Parsing', function(){
 
         it('check if all the files are generated', function() {
             var keydorParsed = false;
+            var arenaScenParsed = false;
             fs.readdir('./test', function(err, files) {
-                files = files.filter( function(file) {
-                    if (file === "keydoor.map.json") {
+                for (var i=0;i<files.length;i++) {
+                    if (files[i] === "keydoor.map.json") {
                         keydorParsed = true;
                     }
-                });
+                    if (files[i] === "arena.map.scen.json") {
+                        arenaScenParsed = true;
+                    }
+                }
+                assert.equal(true, keydorParsed && arenaScenParsed);
             });
         });
     });

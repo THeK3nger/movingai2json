@@ -112,17 +112,40 @@ function parseMapFile(filePath, onComplete = () => {}) {
     });
 }
 
+function parseScenFile(filePath, onComplete = () => {}) {
+    fs.readFile( filePath, (err, data) => {
+        if (err) {
+           throw err;
+        }
+        const outJSON = parseScenString(data.toString());
+        fs.writeFile(filePath + ".json", JSON.stringify(outJSON), (err) => {
+            if (err) {
+                return console.log(err);
+            }
+            onComplete();
+        });
+    });
+}
+
 /**
  * Parse all the files in the given folder.
  * @param folder The input folder path.
  * @param onComplete A callback executed when all the files are processed.
  */
 function parseAllInFolder(folder, onComplete = () => {}) {
+    let parseFile = (file, callback) => {
+        if (file.substr(-4) === ".map") {
+            parseMapFile(file, callback);
+        } else if (file.substr(-5) === ".scen") {
+            parseScenFile(file, callback);
+        }
+    };
+
     // TODO: Suppress the STDOUT output on request.
     fs.readdir(folder, (err, files) =>  {
-        files = files.filter( (file) => file.substr(-4) === ".map");
+        files = files.filter( (file) => file.substr(-4) === ".map" || file.substr(-5) === ".scen");
         console.log(`${files.length} files found!`);
-        async.each(files, (file, callback) => parseMapFile(folder + "/" + file, callback), (err) => {
+        async.each(files, (file, callback) => parseFile(folder + "/" + file, callback), (err) => {
             if (err) {
                 throw err;
             }

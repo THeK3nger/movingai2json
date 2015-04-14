@@ -11,7 +11,7 @@ computing tiles traversability and movement cost between adjacents tiles.
 
 ### Library Usage
 
-The library is composed by the main function `parseMapString(string)`. This function takes as argument the string representing the map in the MovingAI format. This string can be obtained by file or by any other input, it does not matter.
+The library is composed by two main functions: `parseMapString(string)` and `parseScenString(string)`. This function takes as argument the string representing the map (or the scen file) in the MovingAI format. This string can be obtained by file or by any other input, it does not matter.
 
 ### CLI Usage
 
@@ -23,7 +23,7 @@ This is useful to automatically convert a full benchmark database.
 
 ### Output
 
-The output is a JSON data structure in this format:
+The map output is a JSON data structure in this format:
 
     {
       height:// The map height.
@@ -32,12 +32,27 @@ The output is a JSON data structure in this format:
       matrix: [[tile]] // A matrix of tile chars.
     }
 
+The scen output is a JSON data structure in this format:
+
+    [
+      {
+        bucket:       // The bucket index.
+        map:          // The corresponding map file in the benchmark.
+        mapWidth:     // Map Width
+        mapHeight:    // Map Height
+        startX:       // X starting coordinate.
+        startY:       // Y starting coordinate.
+        goalX:        // X goal coordinate.
+        goalY:        // Y goal coordinate.
+        optimalLength:// The precomputed optimal length.
+      }
+    ]
 
 ## TODO:
 
 There is some additional features that can be implemented
 
- - [ ] Parser for the .scen files.
+ - [x] Parser for the .scen files.
  - [ ] Utility functions to handle standard common operation on the map (distances, cost, traversability and so on).
  - [x] CLI to batch several .map file into .json files.
 

@@ -1,4 +1,4 @@
-# movingai2json [![Build Status](https://travis-ci.org/THeK3nger/movingai2json.svg)](https://travis-ci.org/THeK3nger/movingai2json)
+# movingai2json [![Build Status](https://travis-ci.org/THeK3nger/movingai2json.svg)](https://travis-ci.org/THeK3nger/movingai2json) [![npm version](https://badge.fury.io/js/movingai2json.svg)](http://badge.fury.io/js/movingai2json)
 
 **MovingAI2JSON** is a simple *JavaScript* library to parse [Moving AI][2]
 benchmark `.map` and `.scen` files into a JSON data structure.

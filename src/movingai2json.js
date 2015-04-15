@@ -112,6 +112,12 @@ function parseMapFile(filePath, onComplete = () => {}) {
     });
 }
 
+/**
+ * Get a .scen file and produce a file .scen.json with the JSON representation of the
+ * scen file contents.
+ * @param filePath The input file path.
+ * @param onComplete Callback executed when the output file is written.
+ */
 function parseScenFile(filePath, onComplete = () => {}) {
     fs.readFile( filePath, (err, data) => {
         if (err) {
@@ -140,7 +146,7 @@ function parseAllInFolder(folder, onComplete = () => {}) {
             parseScenFile(file, callback);
         }
     };
-    
+
     fs.readdir(folder, (err, files) =>  {
         files = files.filter( (file) => file.substr(-4) === ".map" || file.substr(-5) === ".scen");
         // console.log(`${files.length} files found!`);
@@ -168,7 +174,7 @@ function printUsage(programName) {
     console.log(`${programName} batch [folder] -- Convert all the .map file in the folder path.` );
 }
 
-if (module.parent === undefined) {
+if (module.parent === undefined || module.parent === null) {
     let myArgs = process.argv.slice(2);
 
     if (myArgs.length < 2) {

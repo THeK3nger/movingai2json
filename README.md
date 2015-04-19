@@ -46,7 +46,11 @@ The scen output is a JSON data structure in this format:
         goalY:        // Y goal coordinate.
         optimalLength:// The precomputed optimal length.
       }
-    ]
+      ]
+
+## Dependencies
+
+The async package is required **only** for the CLI batch command. If you want to use this package as a library you can also avoid to use async.
 
 ## TODO:
 

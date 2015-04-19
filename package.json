@@ -1,7 +1,7 @@
 {
   "name": "movingai2json",
-  "version": "0.3.0",
-  "description": "Convert an the MovingAI map format to a JSON data structure.",
+  "version": "0.3.1",
+  "description": "Convert the MovingAI map and scen format into a JSON data structure.",
   "author": "Davide Aversa <thek3nger@gmail.com>",
   "main": "src/movingai2json.js",
   "repository": {

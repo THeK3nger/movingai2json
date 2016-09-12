@@ -1,4 +1,4 @@
-# movingai2json [![Build Status](https://travis-ci.org/THeK3nger/movingai2json.svg)](https://travis-ci.org/THeK3nger/movingai2json) [![npm](https://img.shields.io/npm/v/movingai2json.svg?maxAge=2592000)](https://www.npmjs.com/package/movingai2json) [![npm](https://img.shields.io/npm/dm/movingai2json.svg?maxAge=2592000)]()](https://www.npmjs.com/package/movingai2json)
+# movingai2json [![Build Status](https://travis-ci.org/THeK3nger/movingai2json.svg)](https://travis-ci.org/THeK3nger/movingai2json) [![npm](https://img.shields.io/npm/v/movingai2json.svg?maxAge=2592000)](https://www.npmjs.com/package/movingai2json) [![npm](https://img.shields.io/npm/v/movingai2json.svg?maxAge=2592000)](https://www.npmjs.com/package/movingai2json)
 
 **MovingAI2JSON** is a simple *JavaScript* library to parse [Moving AI][2]
 benchmark `.map` and `.scen` files into a JSON data structure.

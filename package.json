@@ -10,7 +10,7 @@
     },
     "scripts": {
         "test": "nyc ./node_modules/mocha/bin/mocha",
-        "build": "gulp build",
+        "build": "./node_modules/typescript/bin/tsc",
         "start": "node dist/movingai2json.js"
     },
     "keywords": [

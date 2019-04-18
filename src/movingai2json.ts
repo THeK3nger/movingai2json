@@ -5,7 +5,7 @@ export interface MovingAIMap {
     matrix: string[][];
 }
 
-interface MovingAITask {
+export interface MovingAITask {
     bucket: number;
     map: string;
     mapWidth: number;
@@ -17,7 +17,7 @@ interface MovingAITask {
     optimalLength: number;
 }
 
-type MovingAIScene = MovingAITask[];
+export type MovingAIScene = MovingAITask[];
 
 /**
  * Parse a string representing a map in the MovingAI format.

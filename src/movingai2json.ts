@@ -1,55 +1,73 @@
-// Polyfill for startsWith.
-if (!String.prototype.startsWith) {
-    Object.defineProperty(String.prototype, "startsWith", {
-        enumerable: false,
-        configurable: false,
-        writable: false,
-        value(searchString, position) {
-            position = position || 0;
-            return this.lastIndexOf(searchString, position) === position;
-        },
-    });
+export interface MovingAIMap {
+    height: number;
+    width: number;
+    type: string;
+    matrix: string[][];
 }
+
+interface MovingAITask {
+    bucket: number;
+    map: string;
+    mapWidth: number;
+    mapHeight: number;
+    startX: number;
+    startY: number;
+    goalX: number;
+    goalY: number;
+    optimalLength: number;
+}
+
+type MovingAIScene = MovingAITask[];
 
 /**
  * Parse a string representing a map in the MovingAI format.
- * @param map_string The input string.
+ * @param mapString The input string.
  * @returns {{}} The JSON object representation of the map.
  */
-function parseMapString(map_string: string) {
+export function parseMapString(mapString: string): MovingAIMap {
     // Parse a single command in the map header.
-    const parseCommand = (command_string: string) => {
-        const splitted = command_string.split(" ");
+    const parseCommand = (commandString: string) => {
+        const splitted = commandString.split(" ");
         return Object.freeze({ name: splitted[0], value: splitted[1] });
     };
 
-    const json_map = {};
+    const jsonMap: Partial<MovingAIMap> = {};
 
-    const themap_splitted = map_string.split("\n");
+    const themapSplitted = mapString.split("\n");
     let i = 0;
-    let command = themap_splitted[i].trim();
+    let command = themapSplitted[i].trim();
     // Parse Header
-    while (i < themap_splitted.length && !command.startsWith("map")) {
+    while (i < themapSplitted.length && !command.startsWith("map")) {
         if (command.startsWith("height")) {
-            json_map.height = parseInt(parseCommand(command).value, 10);
+            jsonMap.height = parseInt(parseCommand(command).value, 10);
         } else if (command.startsWith("width")) {
-            json_map.width = parseInt(parseCommand(command).value, 10);
+            jsonMap.width = parseInt(parseCommand(command).value, 10);
         } else if (command.startsWith("type")) {
-            json_map.type = parseCommand(command).value;
+            jsonMap.type = parseCommand(command).value;
         }
-        command = themap_splitted[i].trim();
+        command = themapSplitted[i].trim();
         i++;
     }
 
+    if (!jsonMap.height || !jsonMap.width || !jsonMap.type) {
+        throw new Error("Unable to parse the map. Missing height/width/type.");
+    }
+
     // Parse Map
-    json_map.matrix = new Array(json_map.height);
-    for (let r = 0; r < json_map.height; r++) {
-        json_map.matrix[r] = new Array(json_map.width);
-        for (let c = 0; c < json_map.width; c++) {
-            json_map.matrix[r][c] = themap_splitted[r + i][c];
+    jsonMap.matrix = new Array(jsonMap.height);
+    for (let r = 0; r < jsonMap.height; r++) {
+        jsonMap.matrix[r] = new Array(jsonMap.width);
+        for (let c = 0; c < jsonMap.width; c++) {
+            jsonMap.matrix[r][c] = themapSplitted[r + i][c];
         }
     }
-    return json_map;
+
+    return {
+        width: jsonMap.width,
+        height: jsonMap.height,
+        type: jsonMap.type,
+        matrix: jsonMap.matrix,
+    };
 }
 
 /**
@@ -57,30 +75,30 @@ function parseMapString(map_string: string) {
  * @param scenString The input string.
  * @returns {Array} The JSON representation of the input string scenario.
  */
-function parseScenString(scenString) {
+export function parseScenString(scenString: string) {
     const scenarios = scenString.split("\n").slice(1); // Split and remove the header.
 
-    const parseScenario = (scenarioString) => {
+    const parseScenario = (scenarioString: string): MovingAITask => {
         const parsed = scenarioString.split("\t");
         return {
-            bucket: parsed[0],
+            bucket: parseInt(parsed[0], 10),
             map: parsed[1],
-            mapWidth: parsed[2],
-            mapHeight: parsed[3],
-            startX: parsed[4],
-            startY: parsed[5],
-            goalX: parsed[6],
-            goalY: parsed[7],
-            optimalLength: parsed[8],
+            mapWidth: parseInt(parsed[2], 10),
+            mapHeight: parseInt(parsed[3], 10),
+            startX: parseInt(parsed[4], 10),
+            startY: parseInt(parsed[5], 10),
+            goalX: parseInt(parsed[6], 10),
+            goalY: parseInt(parsed[7], 10),
+            optimalLength: parseInt(parsed[8], 10),
         };
     };
 
-    const scensJSON = [];
-    for (let i = 0; i < scenarios.length; i++) {
-        if (scenarios[i].length < 5) {
+    const scensJSON: MovingAIScene = [];
+    for (const task of scenarios) {
+        if (task.length < 5) {
             continue;
         } // Skip empty lines.
-        scensJSON.push(parseScenario(scenarios[i]));
+        scensJSON.push(parseScenario(task));
     }
     return scensJSON;
 }
@@ -90,8 +108,7 @@ function parseScenString(scenString) {
  *
  */
 
-let fs = require("fs");
-let async = require("async");
+import fs from "fs-extra";
 
 /**
  * Get a .map file and produce a file .map.json with the JSON representation of
@@ -99,19 +116,14 @@ let async = require("async");
  * @param filePath The input file path.
  * @param onComplete Callback executed when the output file is written.
  */
-function parseMapFile(filePath, onComplete = () => {}) {
-    fs.readFile(filePath, (err, data) => {
-        if (err) {
-            throw err;
-        }
+export async function parseMapFile(filePath: string): Promise<void> {
+    try {
+        const data = await fs.readFile(filePath);
         const outJSON = parseMapString(data.toString());
-        fs.writeFile(filePath + ".json", JSON.stringify(outJSON), (err) => {
-            if (err) {
-                return console.log(err);
-            }
-            onComplete();
-        });
-    });
+        await fs.writeFile(filePath + ".json", JSON.stringify(outJSON));
+    } catch (err) {
+        throw new Error(err);
+    }
 }
 
 /**
@@ -120,19 +132,14 @@ function parseMapFile(filePath, onComplete = () => {}) {
  * @param filePath The input file path.
  * @param onComplete Callback executed when the output file is written.
  */
-function parseScenFile(filePath, onComplete = () => {}) {
-    fs.readFile(filePath, (err, data) => {
-        if (err) {
-            throw err;
-        }
+export async function parseScenFile(filePath: string): Promise<void> {
+    try {
+        const data = await fs.readFile(filePath);
         const outJSON = parseScenString(data.toString());
-        fs.writeFile(filePath + ".json", JSON.stringify(outJSON), (err) => {
-            if (err) {
-                return console.log(err);
-            }
-            onComplete();
-        });
-    });
+        await fs.writeFile(filePath + ".json", JSON.stringify(outJSON));
+    } catch (err) {
+        throw new Error(err);
+    }
 }
 
 /**
@@ -140,45 +147,36 @@ function parseScenFile(filePath, onComplete = () => {}) {
  * @param folder The input folder path.
  * @param onComplete A callback executed when all the files are processed.
  */
-function parseAllInFolder(folder, onComplete = () => {}) {
-    const parseFile = (file, callback) => {
+export async function parseAllInFolder(folder: string): Promise<void> {
+    const parseFile = async (file: string) => {
         if (file.substr(-4) === ".map") {
-            parseMapFile(file, callback);
+            parseMapFile(file);
         } else if (file.substr(-5) === ".scen") {
-            parseScenFile(file, callback);
+            parseScenFile(file);
         }
     };
 
-    fs.readdir(folder, (err, files) => {
+    try {
+        let files = await fs.readdir(folder);
         files = files.filter(
             (file) => file.substr(-4) === ".map" || file.substr(-5) === ".scen",
         );
-        // console.log(`${files.length} files found!`);
-        async.each(
-            files,
-            (file, callback) => parseFile(folder + "/" + file, callback),
-            (err) => {
-                if (err) {
-                    throw err;
-                }
-                onComplete();
-            },
-        );
-    });
+        const promiseParseMap = files.map((x) => parseFile(folder + "/" + x));
+        await Promise.all(promiseParseMap);
+    } catch (err) {
+        throw new Error(err);
+    }
 }
-
-exports.parseMapString = parseMapString;
-exports.parseScenString = parseScenString;
-exports.parseMapFile = parseMapFile;
-exports.parseAllInFolder = parseAllInFolder;
 
 /******************************************************************************
  * COMMAND LINE INTERFACE
  *
  */
 
-function printUsage(programName) {
+function printUsage(programName: string) {
+    // tslint:disable-next-line:no-console
     console.log("Usage:");
+    // tslint:disable-next-line:no-console
     console.log(
         `${programName} batch [folder] -- Convert all the .map file in the folder path.`,
     );
@@ -191,8 +189,9 @@ if (module.parent === undefined || module.parent === null) {
         printUsage(process.argv[0] + " " + process.argv[1]);
     } else {
         if (myArgs[0] === "batch") {
+            // tslint:disable-next-line:no-console
             console.log("Run batch conversion");
-            parseAllInFolder(myArgs[1], () => console.log("Completed!"));
+            parseAllInFolder(myArgs[1]);
         }
     }
 }

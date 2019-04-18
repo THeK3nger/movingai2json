@@ -31,5 +31,6 @@ node_modules
 dist
 test/keydoor.map.json
 test/arena.map.scen.json
+.nyc_output
 
 

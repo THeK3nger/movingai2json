@@ -21,17 +21,17 @@
         "movingai"
     ],
     "devDependencies": {
-        "mocha": "^6.1.3",
-        "nyc": "^14.0.0",
-        "ts-node": "^8.1.0"
+        "mocha": "^6.2.2",
+        "nyc": "^14.1.1",
+        "ts-node": "^8.5.0"
     },
     "preferGlobal": false,
     "license": "MIT",
     "dependencies": {
-        "@types/fs-extra": "^5.0.5",
-        "@types/mocha": "^5.2.6",
-        "@types/node": "^11.13.5",
-        "fs-extra": "^7.0.1",
-        "typescript": "^3.4.3"
+        "@types/fs-extra": "^8.0.1",
+        "@types/mocha": "^5.2.7",
+        "@types/node": "^12.12.7",
+        "fs-extra": "^8.1.0",
+        "typescript": "^3.7.2"
     }
 }

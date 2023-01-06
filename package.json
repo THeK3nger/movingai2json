@@ -1,6 +1,6 @@
 {
     "name": "movingai2json",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Convert the MovingAI map and scen format into a JSON data structure.",
     "author": "Davide Aversa <thek3nger@gmail.com>",
     "main": "dist/movingai2json.js",

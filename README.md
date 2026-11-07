@@ -30,10 +30,12 @@ TypeScript declarations are included. The package retains CommonJS compatibility
 `parseMapFile(path)` and `parseScenFile(path)` write JSON to `<path>.json`.
 `parseAllInFolder(folder)` converts `.map` and `.scen` files directly in a folder,
 skipping subdirectories. All file operations return promises; await them to handle
-completion and errors. Fractional scenario distances are preserved.
+completion and errors.
 
-Maps require complete headers, positive integer dimensions, and exactly the
-declared number of rows and tiles per row. Invalid maps throw descriptive errors.
+Parsers throw descriptive errors for invalid headers, dimensions, row lengths,
+or scenario fields. Scenarios require version 1 (or 1.0), tab-separated fields,
+and coordinates within the declared map dimensions. Fractional optimal lengths
+are preserved.
 
 ## CLI (from a checkout)
 

@@ -128,6 +128,69 @@ test("scenarios preserve fractional lengths and support CRLF and blank lines", (
     );
 });
 
+test("scenario validation rejects bad headers, fields, numbers, and coordinates", () => {
+    for (const header of ["", "version 2", "version 1oops", "not a header"]) {
+        assert.throws(() => parseScenString(header), /Invalid scenario header/);
+    }
+    const valid = ["0", "a.map", "2", "2", "0", "0", "1", "1", "1.41421"];
+    for (const line of [
+        "bad",
+        valid.slice(1).join("\t"),
+        `${valid.join("\t")}\textra`,
+        valid.join(" "),
+    ]) {
+        assert.throws(
+            () => parseScenString(`version 1\n${line}`),
+            /line 2.*9 nonempty tab-separated fields/,
+        );
+    }
+    const cases: [number, string][] = valid.map((_, index) => [index, ""]);
+    for (const index of [0, 2, 3, 4, 5, 6, 7]) {
+        for (const value of [
+            "-1",
+            "1.5",
+            "1oops",
+            "NaN",
+            "Infinity",
+            "9007199254740992",
+        ]) {
+            cases.push([index, value]);
+        }
+    }
+    cases.push([2, "0"], [3, "0"], [4, "2"], [5, "2"], [6, "2"], [7, "2"]);
+    for (const value of [
+        "-0.1",
+        "NaN",
+        "Infinity",
+        "1e999",
+        "1.5oops",
+        "0x10",
+    ]) {
+        cases.push([8, value]);
+    }
+    for (const [index, value] of cases) {
+        const fields = [...valid];
+        fields[index] = value;
+        assert.throws(
+            () => parseScenString(`version 1\n${fields.join("\t")}`),
+            /scenario line 2/,
+        );
+    }
+});
+
+test("invalid file contents reject without writing JSON", async (t) => {
+    const folder = await mkdtemp(join(tmpdir(), "movingai2json-"));
+    t.after(() => rm(folder, { recursive: true, force: true }));
+    const map = join(folder, "invalid.map");
+    const scen = join(folder, "invalid.scen");
+    await writeFile(map, "type octile\nheight 1\nwidth 2\nmap\n.");
+    await writeFile(scen, "version 1\nmalformed");
+    await assert.rejects(parseMapFile(map), /expected 2 tiles/);
+    await assert.rejects(parseScenFile(scen), /scenario line 2/);
+    await assert.rejects(readFile(`${map}.json`), { code: "ENOENT" });
+    await assert.rejects(readFile(`${scen}.json`), { code: "ENOENT" });
+});
+
 test("file parsers write complete JSON files", async (t) => {
     const folder = await mkdtemp(join(tmpdir(), "movingai2json-"));
     t.after(() => rm(folder, { recursive: true, force: true }));

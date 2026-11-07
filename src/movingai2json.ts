@@ -92,32 +92,62 @@ export function parseMapString(mapString: string): MovingAIMap {
  * @param scenString The input string.
  * @returns The JSON representation of the input string scenario.
  */
-export function parseScenString(scenString: string) {
-    const scenarios = scenString.split("\n").slice(1); // Split and remove the header.
-
-    const parseScenario = (scenarioString: string): MovingAITask => {
-        const parsed = scenarioString.split("\t");
-        return {
-            bucket: parseInt(parsed[0], 10),
-            map: parsed[1],
-            mapWidth: parseInt(parsed[2], 10),
-            mapHeight: parseInt(parsed[3], 10),
-            startX: parseInt(parsed[4], 10),
-            startY: parseInt(parsed[5], 10),
-            goalX: parseInt(parsed[6], 10),
-            goalY: parseInt(parsed[7], 10),
-            optimalLength: parseFloat(parsed[8]),
-        };
-    };
-
-    const scensJSON: MovingAIScene = [];
-    for (const task of scenarios) {
-        if (task.length < 5) {
-            continue;
-        } // Skip empty lines.
-        scensJSON.push(parseScenario(task));
+export function parseScenString(scenString: string): MovingAIScene {
+    const lines = scenString.split(/\r?\n/);
+    if (!/^version[ \t]+1(?:\.0)?$/.test(lines[0].trim())) {
+        throw new Error("Invalid scenario header: expected version 1.");
     }
-    return scensJSON;
+    const scenarios: MovingAIScene = [];
+    for (let i = 1; i < lines.length; i++) {
+        if (lines[i].trim() === "") {
+            continue;
+        }
+        const fields = lines[i].split("\t").map((field) => field.trim());
+        const context = `scenario line ${i + 1}`;
+        if (fields.length !== 9 || fields.some((field) => field === "")) {
+            throw new Error(
+                `Invalid ${context}: expected 9 nonempty tab-separated fields.`,
+            );
+        }
+        const bucket = parseInteger(fields[0], `${context} bucket`, 0);
+        const mapWidth = parseInteger(fields[2], `${context} mapWidth`, 1);
+        const mapHeight = parseInteger(fields[3], `${context} mapHeight`, 1);
+        const startX = parseInteger(fields[4], `${context} startX`, 0);
+        const startY = parseInteger(fields[5], `${context} startY`, 0);
+        const goalX = parseInteger(fields[6], `${context} goalX`, 0);
+        const goalY = parseInteger(fields[7], `${context} goalY`, 0);
+        if (
+            startX >= mapWidth ||
+            goalX >= mapWidth ||
+            startY >= mapHeight ||
+            goalY >= mapHeight
+        ) {
+            throw new Error(
+                `Invalid ${context}: coordinates are outside the map.`,
+            );
+        }
+        const optimalLength = Number(fields[8]);
+        if (
+            !/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(fields[8]) ||
+            !Number.isFinite(optimalLength)
+        ) {
+            throw new Error(
+                `Invalid ${context} optimalLength: expected a finite nonnegative number.`,
+            );
+        }
+        scenarios.push({
+            bucket,
+            map: fields[1],
+            mapWidth,
+            mapHeight,
+            startX,
+            startY,
+            goalX,
+            goalY,
+            optimalLength,
+        });
+    }
+    return scenarios;
 }
 
 /******************************************************************************

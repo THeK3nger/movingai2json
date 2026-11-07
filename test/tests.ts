@@ -27,8 +27,8 @@ const scenFixture = resolve("test/arena.map.scen");
 test("parseMapString parses map dimensions and tiles", async () => {
     const map = parseMapString(await readFile(mapFixture, "utf8"));
     assert.equal(map.width, 20);
-    assert.equal(map.height, 20);
-    assert.equal(map.matrix.length, 20);
+    assert.equal(map.height, 21);
+    assert.equal(map.matrix.length, 21);
     assert.ok(map.matrix.every((row) => row.length === 20));
 });
 
@@ -37,6 +37,69 @@ test("parseMapString rejects a missing header", () => {
         () => parseMapString("map\n.."),
         /Missing height\/width\/type/,
     );
+});
+
+test("map headers accept flexible whitespace and CRLF without shifting rows", () => {
+    assert.deepEqual(
+        parseMapString(
+            "width\t2\r\n type   octile \r\nheight  2\r\nmap\r\n.@\r\nT.\r\n\r\n",
+        ),
+        {
+            width: 2,
+            height: 2,
+            type: "octile",
+            matrix: [
+                [".", "@"],
+                ["T", "."],
+            ],
+        },
+    );
+    assert.deepEqual(
+        parseMapString("type octile\nheight 1\nwidth 1\nmap\n.").matrix,
+        [["."]],
+    );
+});
+
+test("map validation rejects malformed headers and tile rows", () => {
+    const header = "type octile\nheight 2\nwidth 2\n";
+    const cases: [string, RegExp][] = [
+        ["", /Missing map marker/],
+        [header, /Missing map marker/],
+        [`${header}maple\n..\n..`, /Missing map marker/],
+        [`${header}width 2\nmap\n..\n..`, /Invalid map header/],
+        [`${header}unknown value\nmap\n..\n..`, /Invalid map header/],
+        ["type\nheight 1\nwidth 1\nmap\n.", /Invalid map header/],
+        [`${header}map\n..`, /expected 2 rows/],
+        [`${header}map\n..\n..\n..`, /expected 2 rows/],
+        [`${header}map\n.\n..`, /row 1.*expected 2 tiles/],
+        [`${header}map\n...\n..`, /row 1.*expected 2 tiles/],
+        [`${header}map\n\n..`, /row 1.*expected 2 tiles/],
+    ];
+    for (const value of [
+        "0",
+        "-1",
+        "1.5",
+        "2oops",
+        "NaN",
+        "Infinity",
+        "9007199254740992",
+    ]) {
+        cases.push([
+            `type octile\nheight ${value}\nwidth 2\nmap\n..`,
+            /Invalid map height/,
+        ]);
+        cases.push([
+            `type octile\nheight 1\nwidth ${value}\nmap\n..`,
+            /Invalid map width/,
+        ]);
+    }
+    for (const [input, expected] of cases) {
+        assert.throws(
+            () => parseMapString(input),
+            expected,
+            JSON.stringify(input),
+        );
+    }
 });
 
 test("parseScenString parses scenario coordinates", async () => {

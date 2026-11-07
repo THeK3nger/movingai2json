@@ -22,55 +22,69 @@ export interface MovingAITask {
 
 export type MovingAIScene = MovingAITask[];
 
+function parseInteger(value: string, field: string, minimum: number): number {
+    const parsed = Number(value);
+    if (
+        !/^\d+$/.test(value) ||
+        !Number.isSafeInteger(parsed) ||
+        parsed < minimum
+    ) {
+        throw new Error(`Invalid ${field}: expected an integer >= ${minimum}.`);
+    }
+    return parsed;
+}
+
 /**
  * Parse a string representing a map in the MovingAI format.
  * @param mapString The input string.
  * @returns The JSON object representation of the map.
  */
 export function parseMapString(mapString: string): MovingAIMap {
-    // Parse a single command in the map header.
-    const parseCommand = (commandString: string) => {
-        const splitted = commandString.split(" ");
-        return Object.freeze({ name: splitted[0], value: splitted[1] });
-    };
-
-    const jsonMap: Partial<MovingAIMap> = {};
-
-    const themapSplitted = mapString.split("\n");
-    let i = 0;
-    let command = themapSplitted[i].trim();
-    // Parse Header
-    while (i < themapSplitted.length && !command.startsWith("map")) {
-        if (command.startsWith("height")) {
-            jsonMap.height = parseInt(parseCommand(command).value, 10);
-        } else if (command.startsWith("width")) {
-            jsonMap.width = parseInt(parseCommand(command).value, 10);
-        } else if (command.startsWith("type")) {
-            jsonMap.type = parseCommand(command).value;
-        }
-        command = themapSplitted[i].trim();
-        i++;
+    const lines = mapString.split(/\r?\n/);
+    const marker = lines.findIndex((line) => line.trim() === "map");
+    if (marker === -1) {
+        throw new Error("Unable to parse the map. Missing map marker.");
     }
-
-    if (!jsonMap.height || !jsonMap.width || !jsonMap.type) {
+    const header = new Map<string, string>();
+    for (let i = 0; i < marker; i++) {
+        const fields = lines[i].trim().split(/\s+/);
+        const [name, value] = fields;
+        if (
+            fields.length !== 2 ||
+            !["type", "height", "width"].includes(name) ||
+            header.has(name)
+        ) {
+            throw new Error(`Invalid map header at line ${i + 1}.`);
+        }
+        header.set(name, value);
+    }
+    const type = header.get("type");
+    const heightValue = header.get("height");
+    const widthValue = header.get("width");
+    if (!type || heightValue === undefined || widthValue === undefined) {
         throw new Error("Unable to parse the map. Missing height/width/type.");
     }
-
-    // Parse Map
-    jsonMap.matrix = new Array(jsonMap.height);
-    for (let r = 0; r < jsonMap.height; r++) {
-        jsonMap.matrix[r] = new Array(jsonMap.width);
-        for (let c = 0; c < jsonMap.width; c++) {
-            jsonMap.matrix[r][c] = themapSplitted[r + i][c];
-        }
+    const height = parseInteger(heightValue, "map height", 1);
+    const width = parseInteger(widthValue, "map width", 1);
+    const rows = lines.slice(marker + 1);
+    // Permit trailing newlines, but never trim tile rows or hide empty interior rows.
+    while (rows.length > 0 && rows[rows.length - 1] === "") {
+        rows.pop();
     }
-
-    return {
-        width: jsonMap.width,
-        height: jsonMap.height,
-        type: jsonMap.type,
-        matrix: jsonMap.matrix,
-    };
+    if (rows.length !== height) {
+        throw new Error(
+            `Invalid map: expected ${height} rows, got ${rows.length}.`,
+        );
+    }
+    const matrix = rows.map((row, index) => {
+        if (row.length !== width) {
+            throw new Error(
+                `Invalid map row ${index + 1}: expected ${width} tiles, got ${row.length}.`,
+            );
+        }
+        return row.split("");
+    });
+    return { width, height, type, matrix };
 }
 
 /**

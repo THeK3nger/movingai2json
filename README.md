@@ -32,6 +32,9 @@ TypeScript declarations are included. The package retains CommonJS compatibility
 skipping subdirectories. All file operations return promises; await them to handle
 completion and errors. Fractional scenario distances are preserved.
 
+Maps require complete headers, positive integer dimensions, and exactly the
+declared number of rows and tiles per row. Invalid maps throw descriptive errors.
+
 ## CLI (from a checkout)
 
 ```sh

@@ -92,7 +92,7 @@ export function parseScenString(scenString: string) {
             startY: parseInt(parsed[5], 10),
             goalX: parseInt(parsed[6], 10),
             goalY: parseInt(parsed[7], 10),
-            optimalLength: parseInt(parsed[8], 10),
+            optimalLength: parseFloat(parsed[8]),
         };
     };
 

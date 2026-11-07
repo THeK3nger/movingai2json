@@ -46,6 +46,23 @@ test("parseScenString parses scenario coordinates", async () => {
         scenarios.every((scenario) => scenario.map === "maps/dao/arena.map"),
     );
     assert.equal(scenarios[5].startX, 1);
+    assert.equal(scenarios[2].optimalLength, 3.41421);
+});
+
+test("scenarios preserve fractional lengths and support CRLF and blank lines", () => {
+    const tasks = parseScenString(
+        "version\t1.0\r\n\r\n0\tmap with spaces.map\t2\t2\t0\t0\t1\t1\t1.41421356\r\n \t \r\n",
+    );
+    assert.equal(tasks.length, 1);
+    // biome-ignore lint/suspicious/noApproximativeNumericConstant: Preserve the exact decimal in the scenario, not Math.SQRT2.
+    assert.equal(tasks[0].optimalLength, 1.41421356);
+    assert.equal(tasks[0].map, "map with spaces.map");
+    assert.deepEqual(parseScenString("version 1\n"), []);
+    assert.equal(
+        parseScenString("version 1\n0\ta.map\t1\t1\t0\t0\t0\t0\t0")[0]
+            .optimalLength,
+        0,
+    );
 });
 
 test("file parsers write complete JSON files", async (t) => {

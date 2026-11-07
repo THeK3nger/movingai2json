@@ -30,7 +30,7 @@ TypeScript declarations are included. The package retains CommonJS compatibility
 `parseMapFile(path)` and `parseScenFile(path)` write JSON to `<path>.json`.
 `parseAllInFolder(folder)` converts `.map` and `.scen` files directly in a folder,
 skipping subdirectories. All file operations return promises; await them to handle
-completion and errors.
+completion and errors. Fractional scenario distances are preserved.
 
 ## CLI (from a checkout)
 

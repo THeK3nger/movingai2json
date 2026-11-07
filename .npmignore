@@ -31,6 +31,7 @@ node_modules
 src
 
 # Build Results
+.test-dist
 test/keydoor.map.json
 test/arena.map.scen.json
 .nyc_output

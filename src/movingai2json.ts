@@ -122,7 +122,7 @@ export async function parseMapFile(filePath: string): Promise<void> {
         const outJSON = parseMapString(data.toString());
         await fs.writeFile(filePath + ".json", JSON.stringify(outJSON));
     } catch (err) {
-        throw new Error(err);
+        throw new Error(String(err));
     }
 }
 
@@ -138,7 +138,7 @@ export async function parseScenFile(filePath: string): Promise<void> {
         const outJSON = parseScenString(data.toString());
         await fs.writeFile(filePath + ".json", JSON.stringify(outJSON));
     } catch (err) {
-        throw new Error(err);
+        throw new Error(String(err));
     }
 }
 
@@ -150,9 +150,9 @@ export async function parseScenFile(filePath: string): Promise<void> {
 export async function parseAllInFolder(folder: string): Promise<void> {
     const parseFile = async (file: string) => {
         if (file.substr(-4) === ".map") {
-            parseMapFile(file);
+            await parseMapFile(file);
         } else if (file.substr(-5) === ".scen") {
-            parseScenFile(file);
+            await parseScenFile(file);
         }
     };
 
@@ -164,7 +164,7 @@ export async function parseAllInFolder(folder: string): Promise<void> {
         const promiseParseMap = files.map((x) => parseFile(folder + "/" + x));
         await Promise.all(promiseParseMap);
     } catch (err) {
-        throw new Error(err);
+        throw new Error(String(err));
     }
 }
 

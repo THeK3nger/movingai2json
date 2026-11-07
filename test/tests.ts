@@ -1,4 +1,4 @@
-import { MovingAIMap, MovingAIScene } from "../src/movingai2json";
+import type { MovingAIMap, MovingAIScene } from "../dist/movingai2json";
 
 import assert from "assert";
 import fs from "fs-extra";
@@ -33,40 +33,31 @@ describe("Parsing", () => {
             await movingai2json.parseMapFile("./test/keydoor.map");
         });
 
-        it("load output JSON and check if width is 20", () => {
-            fs.readFile("./test/keydoor.map.json", (err, data) => {
-                const parsedJSON = JSON.parse(data.toString());
-                assert.equal(20, parsedJSON.width);
-            });
+        it("load output JSON and check if width is 20", async () => {
+            const data = await fs.readFile("./test/keydoor.map.json");
+            const parsedJSON = JSON.parse(data.toString());
+            assert.equal(20, parsedJSON.width);
         });
 
-        it("load output JSON and check if height is 20", () => {
-            fs.readFile("./test/keydoor.map.json", (err, data) => {
-                const parsedJSON = JSON.parse(data.toString());
-                assert.equal(20, parsedJSON.height);
-            });
+        it("load output JSON and check if height is 20", async () => {
+            const data = await fs.readFile("./test/keydoor.map.json");
+            const parsedJSON = JSON.parse(data.toString());
+            assert.equal(20, parsedJSON.height);
         });
     });
 
     describe("#parseAllInFolder()", () => {
         before(async () => {
+            await fs.remove("./test/keydoor.map.json");
+            await fs.remove("./test/arena.map.scen.json");
             await movingai2json.parseAllInFolder("./test");
         });
 
-        it("check if all the files are generated", () => {
-            let keydorParsed = false;
-            let arenaScenParsed = false;
-            fs.readdir("./test", (err, files) => {
-                for (let i = 0; i < files.length; i++) {
-                    if (files[i] === "keydoor.map.json") {
-                        keydorParsed = true;
-                    }
-                    if (files[i] === "arena.map.scen.json") {
-                        arenaScenParsed = true;
-                    }
-                }
-                assert.equal(true, keydorParsed && arenaScenParsed);
-            });
+        it("check if all the files are generated", async () => {
+            const map = await fs.readJson("./test/keydoor.map.json");
+            const scenarios = await fs.readJson("./test/arena.map.scen.json");
+            assert.equal(20, map.width);
+            assert.ok(scenarios.length > 0);
         });
     });
 

@@ -50,7 +50,11 @@ The scen output is a JSON data structure in this format:
 
 ## Dependencies
 
-The async package is required **only** for the CLI batch command. If you want to use this package as a library you can also avoid to use async.
+Node.js 20.19+ (20.x) or 22.12+ is required. The runtime dependency is `fs-extra`;
+TypeScript, Mocha, and nyc are development-only dependencies.
+
+Run `npm ci` to install dependencies and `npm test` to build the library, compile
+the tests, and run them with coverage.
 
 ## TODO:
 

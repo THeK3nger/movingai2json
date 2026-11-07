@@ -4,18 +4,26 @@
     "description": "Convert the MovingAI map and scen format into a JSON data structure.",
     "author": "Davide Aversa <thek3nger@gmail.com>",
     "main": "dist/movingai2json.js",
+    "types": "dist/movingai2json.d.ts",
+    "type": "commonjs",
+    "files": [
+        "dist"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/THeK3nger/movingai2json"
     },
     "scripts": {
         "pretest": "npm run build && tsc -p tsconfig.test.json",
-        "test": "nyc mocha",
+        "test": "node --enable-source-maps --test --experimental-test-coverage .test-dist/tests.js",
         "build": "tsc",
+        "check": "biome check .",
+        "format": "biome format --write .",
+        "prepack": "npm run build",
         "start": "node dist/movingai2json.js"
     },
     "engines": {
-        "node": "^20.19.0 || >=22.12.0"
+        "node": ">=22.12.0"
     },
     "keywords": [
         "artificial intelligence",
@@ -25,16 +33,9 @@
         "movingai"
     ],
     "devDependencies": {
-        "@types/fs-extra": "^11.0.4",
-        "@types/mocha": "^10.0.10",
+        "@biomejs/biome": "^2.6.6",
         "@types/node": "^26.6.6",
-        "mocha": "^12.0.3",
-        "nyc": "^18.0.0",
         "typescript": "^7.0.2"
     },
-    "preferGlobal": false,
-    "license": "MIT",
-    "dependencies": {
-        "fs-extra": "^11.4.1"
-    }
+    "license": "MIT"
 }

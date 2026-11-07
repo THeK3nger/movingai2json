@@ -6,4 +6,4 @@
 
 ### Add
 
- - I have finally updated `movingai2json` to a more modern JS. Now all the parsing functions are built as promises and the codebase should be much easier to understand.
+- I have finally updated `movingai2json` to a more modern JS. Now all the parsing functions are built as promises and the codebase should be much easier to understand.

@@ -1,72 +1,64 @@
-# movingai2json [![Build Status](https://travis-ci.org/THeK3nger/movingai2json.svg)](https://travis-ci.org/THeK3nger/movingai2json) [![npm](https://img.shields.io/npm/v/movingai2json.svg?maxAge=2592000)](https://www.npmjs.com/package/movingai2json) [![npm](https://img.shields.io/npm/dt/movingai2json.svg?maxAge=2592000)](https://www.npmjs.com/package/movingai2json)
+# movingai2json
 
-**MovingAI2JSON** is a simple *JavaScript* library to parse [Moving AI][2]
-benchmark `.map` and `.scen` files into a JSON data structure.
+[![CI](https://github.com/THeK3nger/movingai2json/actions/workflows/ci.yml/badge.svg)](https://github.com/THeK3nger/movingai2json/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/movingai2json.svg)](https://www.npmjs.com/package/movingai2json)
 
-The library also provide simple tools to handle the resulting objects, such as
-computing tiles traversability and movement cost between adjacents tiles.
+Convert [Moving AI](https://movingai.com/) benchmark `.map` and `.scen` files into
+JSON. Requires Node.js 22.12 or newer. No runtime dependencies.
 
+## Library
 
-## Usage
+```sh
+npm install movingai2json
+```
 
-### Library Usage
+```js
+const { parseMapString, parseScenString } = require("movingai2json");
 
-The library is composed by two main functions: `parseMapString(string)` and `parseScenString(string)`. This function takes as argument the string representing the map (or the scen file) in the MovingAI format. This string can be obtained by file or by any other input, it does not matter.
+const map = parseMapString("type octile\nheight 2\nwidth 2\nmap\n..\n.@\n");
+// { width: 2, height: 2, type: "octile", matrix: [[".", "."], [".", "@"]] }
 
-### CLI Usage
+const tasks = parseScenString(
+    "version 1\n0\texample.map\t2\t2\t0\t0\t1\t1\t1\n",
+);
+// [{ bucket: 0, map: "example.map", mapWidth: 2, mapHeight: 2,
+//    startX: 0, startY: 0, goalX: 1, goalY: 1, optimalLength: 1 }]
+```
 
-The program can be run in the command line in order to automaitcally convert all files in the specified folder.
+TypeScript declarations are included. The package retains CommonJS compatibility.
 
-    node movingai2json batch <folder_path>
+`parseMapFile(path)` and `parseScenFile(path)` write JSON to `<path>.json`.
+`parseAllInFolder(folder)` converts `.map` and `.scen` files directly in a folder,
+skipping subdirectories. All file operations return promises; await them to handle
+completion and errors.
 
-This is useful to automatically convert a full benchmark database.
+## CLI (from a checkout)
 
-### Output
+```sh
+npm ci
+npm run build
+npm start -- batch /path/to/maps
+```
 
-The map output is a JSON data structure in this format:
+Invalid arguments and conversion failures exit with a nonzero status.
 
-    {
-      height:// The map height.
-      width: // The map width.
-      type:  //The map type (octile is the default)
-      matrix: [[tile]] // A matrix of tile chars.
-    }
+## Development
 
-The scen output is a JSON data structure in this format:
+Use a supported Node.js LTS release (22 or 24). CI also checks Node.js 26 on Linux
+and Windows.
 
-    [
-      {
-        bucket:       // The bucket index.
-        map:          // The corresponding map file in the benchmark.
-        mapWidth:     // Map Width
-        mapHeight:    // Map Height
-        startX:       // X starting coordinate.
-        startY:       // Y starting coordinate.
-        goalX:        // X goal coordinate.
-        goalY:        // Y goal coordinate.
-        optimalLength:// The precomputed optimal length.
-      }
-      ]
+```sh
+npm ci
+npm run check   # Biome lint, import ordering, and formatting checks
+npm run format # Apply formatting
+npm test       # Build, type-check tests, and run Node's test runner with coverage
+npm pack --dry-run # Verify the publication contents; rebuilds automatically
+```
 
-## Dependencies
-
-Node.js 20.19+ (20.x) or 22.12+ is required. The runtime dependency is `fs-extra`;
-TypeScript, Mocha, and nyc are development-only dependencies.
-
-Run `npm ci` to install dependencies and `npm test` to build the library, compile
-the tests, and run them with coverage.
-
-## TODO:
-
-There is some additional features that can be implemented
-
- - [x] Parser for the .scen files.
- - [ ] Utility functions to handle standard common operation on the map (distances, cost, traversability and so on).
- - [x] CLI to batch several .map file into .json files.
+Tests use temporary directories and clean up their generated files. Only `dist/`,
+the README, license, and package metadata are published. GitHub Actions checks
+every pull request; Dependabot proposes weekly dependency and action updates.
 
 ## License
 
-The library is released under [the MIT license][1]
-
- [1]: LICENSE
- [2]: http://movingai.com/
+[MIT](LICENSE)

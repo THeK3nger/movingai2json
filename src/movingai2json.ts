@@ -1,3 +1,6 @@
+import { readdir, readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+
 export interface MovingAIMap {
     height: number;
     width: number;
@@ -22,7 +25,7 @@ export type MovingAIScene = MovingAITask[];
 /**
  * Parse a string representing a map in the MovingAI format.
  * @param mapString The input string.
- * @returns {{}} The JSON object representation of the map.
+ * @returns The JSON object representation of the map.
  */
 export function parseMapString(mapString: string): MovingAIMap {
     // Parse a single command in the map header.
@@ -73,7 +76,7 @@ export function parseMapString(mapString: string): MovingAIMap {
 /**
  * Parse a string representing scenario benchmark in the MovingAI format.
  * @param scenString The input string.
- * @returns {Array} The JSON representation of the input string scenario.
+ * @returns The JSON representation of the input string scenario.
  */
 export function parseScenString(scenString: string) {
     const scenarios = scenString.split("\n").slice(1); // Split and remove the header.
@@ -108,63 +111,44 @@ export function parseScenString(scenString: string) {
  *
  */
 
-import fs from "fs-extra";
-
 /**
  * Get a .map file and produce a file .map.json with the JSON representation of
  * the map.
  * @param filePath The input file path.
- * @param onComplete Callback executed when the output file is written.
  */
 export async function parseMapFile(filePath: string): Promise<void> {
-    try {
-        const data = await fs.readFile(filePath);
-        const outJSON = parseMapString(data.toString());
-        await fs.writeFile(filePath + ".json", JSON.stringify(outJSON));
-    } catch (err) {
-        throw new Error(String(err));
-    }
+    const data = await readFile(filePath, "utf8");
+    const outJSON = parseMapString(data);
+    await writeFile(`${filePath}.json`, JSON.stringify(outJSON));
 }
 
 /**
  * Get a .scen file and produce a file .scen.json with the JSON representation of the
  * scen file contents.
  * @param filePath The input file path.
- * @param onComplete Callback executed when the output file is written.
  */
 export async function parseScenFile(filePath: string): Promise<void> {
-    try {
-        const data = await fs.readFile(filePath);
-        const outJSON = parseScenString(data.toString());
-        await fs.writeFile(filePath + ".json", JSON.stringify(outJSON));
-    } catch (err) {
-        throw new Error(String(err));
-    }
+    const data = await readFile(filePath, "utf8");
+    const outJSON = parseScenString(data);
+    await writeFile(`${filePath}.json`, JSON.stringify(outJSON));
 }
 
 /**
  * Parse all the files in the given folder.
  * @param folder The input folder path.
- * @param onComplete A callback executed when all the files are processed.
  */
 export async function parseAllInFolder(folder: string): Promise<void> {
-    const parseFile = async (file: string) => {
-        if (file.substr(-4) === ".map") {
+    const entries = await readdir(folder, { withFileTypes: true });
+    for (const entry of entries) {
+        if (!entry.isFile()) {
+            continue;
+        }
+        const file = join(folder, entry.name);
+        if (entry.name.endsWith(".map")) {
             await parseMapFile(file);
-        } else if (file.substr(-5) === ".scen") {
+        } else if (entry.name.endsWith(".scen")) {
             await parseScenFile(file);
         }
-    };
-
-    try {
-        let files = await fs.readdir(folder);
-        files = files.filter(
-            (file) => file.substr(-4) === ".map" || file.substr(-5) === ".scen",
-        );
-        const promiseParseMap = files.map((x) => parseFile(folder + "/" + x));
-        await Promise.all(promiseParseMap);
-    } catch (err) {
-        throw new Error(String(err));
     }
 }
 
@@ -174,24 +158,22 @@ export async function parseAllInFolder(folder: string): Promise<void> {
  */
 
 function printUsage(programName: string) {
-    // tslint:disable-next-line:no-console
     console.log("Usage:");
-    // tslint:disable-next-line:no-console
     console.log(
-        `${programName} batch [folder] -- Convert all the .map file in the folder path.`,
+        `${programName} batch <folder> -- Convert all .map and .scen files in the folder.`,
     );
 }
 
-if (module.parent === undefined || module.parent === null) {
+if (require.main === module) {
     const myArgs = process.argv.slice(2);
 
-    if (myArgs.length < 2) {
-        printUsage(process.argv[0] + " " + process.argv[1]);
+    if (myArgs.length !== 2 || myArgs[0] !== "batch") {
+        printUsage(`${process.argv[0]} ${process.argv[1]}`);
+        process.exitCode = 1;
     } else {
-        if (myArgs[0] === "batch") {
-            // tslint:disable-next-line:no-console
-            console.log("Run batch conversion");
-            parseAllInFolder(myArgs[1]);
-        }
+        parseAllInFolder(myArgs[1]).catch((error: unknown) => {
+            console.error(error);
+            process.exitCode = 1;
+        });
     }
 }

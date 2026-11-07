@@ -5,6 +5,20 @@
     "author": "Davide Aversa <thek3nger@gmail.com>",
     "main": "dist/movingai2json.js",
     "types": "dist/movingai2json.d.ts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/esm/movingai2json.d.ts",
+                "default": "./dist/esm/movingai2json.js"
+            },
+            "require": {
+                "types": "./dist/movingai2json.d.ts",
+                "default": "./dist/movingai2json.js"
+            }
+        },
+        "./package.json": "./package.json",
+        "./dist/*": "./dist/*"
+    },
     "type": "commonjs",
     "files": [
         "dist"
@@ -16,7 +30,7 @@
     "scripts": {
         "pretest": "npm run build && tsc -p tsconfig.test.json",
         "test": "node --enable-source-maps --test --experimental-test-coverage .test-dist/tests.js",
-        "build": "tsc",
+        "build": "tsc && tsc -p tsconfig.esm.json && node scripts/finalize-build.mjs",
         "check": "biome check .",
         "format": "biome format --write .",
         "prepack": "npm run build",

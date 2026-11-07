@@ -208,7 +208,8 @@ function printUsage(programName: string) {
     );
 }
 
-if (require.main === module) {
+// The CLI remains in the CommonJS entry point; importing either build has no side effects.
+if (typeof require === "function" && require.main === module) {
     const myArgs = process.argv.slice(2);
 
     if (myArgs.length !== 2 || myArgs[0] !== "batch") {

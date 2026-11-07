@@ -27,6 +27,18 @@ const tasks = parseScenString(
 
 TypeScript declarations are included. The package retains CommonJS compatibility.
 
+Native ESM is also supported:
+
+```js
+import { parseMapString, parseScenString } from "movingai2json";
+```
+
+Conditional exports select the native ESM build for `import` and the CommonJS
+build for `require()`, with matching TypeScript declarations for each. The CLI
+continues to use the CommonJS build. Both builds expose the same functions, but
+their function objects have separate identities; prefer one module format per
+consumer.
+
 `parseMapFile(path)` and `parseScenFile(path)` write JSON to `<path>.json`.
 `parseAllInFolder(folder)` converts `.map` and `.scen` files directly in a folder,
 skipping subdirectories. All file operations return promises; await them to handle

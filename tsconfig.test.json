@@ -6,6 +6,6 @@
         "declaration": false,
         "declarationMap": false
     },
-    "include": ["test/**/*.ts"],
+    "include": ["test/**/*.ts", "test/**/*.mts"],
     "exclude": ["node_modules", "dist", ".test-dist"]
 }
